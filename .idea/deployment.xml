@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="PublishConfigData" autoUpload="Always" serverName="gazp" remoteFilesAllowedToDisappearOnAutoupload="false" showNewOnSourceInSync="false">
+    <serverData>
+      <paths name="gazp">
+        <serverdata>
+          <mappings>
+            <mapping deploy="/" local="$PROJECT_DIR$" web="/" />
+          </mappings>
+          <excludedPaths>
+            <excludedPath path="/cache" />
+            <excludedPath path="/__pycache__" />
+            <excludedPath path="/data/CSgSQL" />
+            <excludedPath path="/data/database" />
+            <excludedPath path="/data/CSgSQL.zip" />
+            <excludedPath path="/data/spider.zip" />
+            <excludedPath path="/data/spider/train_others.json" />
+            <excludedPath path="/data/spider/dev_gold.sql" />
+            <excludedPath path="/data/spider/tables.json" />
+            <excludedPath path="/data/spider/train_gold.sql" />
+            <excludedPath path="/data/spider/README.txt" />
+            <excludedPath path="/data/spider/train.json" />
+            <excludedPath path="/data/spider/train_spider.json" />
+            <excludedPath path="/exp" />
+            <excludedPath path="/gen/gen1.debug.pt" />
+            <excludedPath path="/gen/gen1.pt" />
+            <excludedPath path="/gen/gen1.ques.pt" />
+            <excludedPath path="/gen/gen1.sql.pt" />
+            <excludedPath path="/gen/gen2.debug.pt" />
+            <excludedPath path="/gen/gen2.pt" />
+            <excludedPath path="/gen/gen2.ques.pt" />
+            <excludedPath path="/gen/gen2.sql.pt" />
+            <excludedPath path="/data/chase" />
+            <excludedPath path="/data/database-chase" />
+            <excludedPath path="/data/database-spider" />
+            <excludedPath path="/data/tables.json" />
+            <excludedPath path="/data/database.zip" />
+            <excludedPath path="/data/Chase.zip" />
+            <excludedPath path="/data/csgsql/database" />
+          </excludedPaths>
+        </serverdata>
+      </paths>
+    </serverData>
+    <option name="myAutoUpload" value="ALWAYS" />
+  </component>
+</project>
