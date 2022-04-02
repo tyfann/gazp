@@ -544,6 +544,7 @@ def preprocess(dataset, remove_from=False):
       output_dir = 'data/csgsql_data_removefrom'
     train_database, dev_database = read_db_split(csgsql_dir)
 
+
   if os.path.isdir(output_dir):
     shutil.rmtree(output_dir)
   os.mkdir(output_dir)

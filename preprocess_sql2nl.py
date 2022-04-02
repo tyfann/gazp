@@ -238,6 +238,7 @@ class SQLDataset:
             print(ex['query'])
             print(repr(e))
             print(repr(e))
+
             invalid = True
         except Exception as e:
             print(e)

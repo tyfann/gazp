@@ -9,6 +9,7 @@ import editsql_postprocess
 from eval_scripts import evaluation
 from collections import Counter
 
+
 SQL_PRIMITIVES = editsql_preprocess.output_vocab_with_from
 
 
@@ -20,6 +21,7 @@ class Converter:
         self.schema_tokens, self.column_names, self.database_schemas = editsql_preprocess.read_database_schema(tables,
                                                                                                                {}, {},
                                                                                                                {})
+
         self.kmaps = evaluation.build_foreign_key_map_from_json(tables)
         self.evaluator = evaluation.Evaluator()
 
@@ -148,6 +150,7 @@ def parse_sql(sql_string, db_id, column_names, output_vocab, schema_tokens, sche
     editsql_preprocess.check_oov(format_sql_final, output_vocab, schema_tokens)
     import pdb;
     pdb.set_trace()
+
     return format_sql_final
 
 
@@ -185,6 +188,7 @@ if __name__ == '__main__':
         iterator = iterate_sparc(data)
     elif 'chase' in args.fsplit:
         iterator = iterate_chase(data)
+
 
     total = matched = 0
     for query, db_id in iterator:
