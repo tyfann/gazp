@@ -11,7 +11,6 @@
             <excludedPath path="/cache" />
             <excludedPath path="/__pycache__" />
             <excludedPath path="/data/CSgSQL" />
-            <excludedPath path="/data/database" />
             <excludedPath path="/data/CSgSQL.zip" />
             <excludedPath path="/data/spider.zip" />
             <excludedPath path="/data/spider/train_others.json" />
@@ -37,6 +36,15 @@
             <excludedPath path="/data/database.zip" />
             <excludedPath path="/data/Chase.zip" />
             <excludedPath path="/data/csgsql/database" />
+            <excludedPath path="/data/database" />
+            <excludedPath path="/gen-csgsql/gen1.debug.pt" />
+            <excludedPath path="/gen-csgsql/gen1.pt" />
+            <excludedPath path="/gen-csgsql/gen1.ques.pt" />
+            <excludedPath path="/gen-csgsql/gen1.sql.pt" />
+            <excludedPath path="/gen-csgsql/gen2.debug.pt" />
+            <excludedPath path="/gen-csgsql/gen2.pt" />
+            <excludedPath path="/gen-csgsql/gen2.ques.pt" />
+            <excludedPath path="/gen-csgsql/gen2.sql.pt" />
           </excludedPaths>
         </serverdata>
       </paths>

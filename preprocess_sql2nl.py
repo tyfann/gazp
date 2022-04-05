@@ -54,10 +54,11 @@ class SQLDataset:
                             candidates.append((j, k+1))
                             break
             if len(candidates) == 0:
-                print(no_value)
-                print(no_value[i])
-                print(yes_value)
-                import pdb; pdb.set_trace()
+                raise ValueAlignmentException('Cannot align values: {}'.format(yes_value))
+                # print(no_value)
+                # print(no_value[i])
+                # print(yes_value)
+                # import pdb; pdb.set_trace()
             candidates.sort(key=lambda x: x[1] - x[0])
             return candidates[0]
 
