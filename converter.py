@@ -84,6 +84,9 @@ class Converter:
             query_norm = editsql_preprocess.parse_sql(query_no_alias, db_id, self.column_names[db_id],
                                                       editsql_preprocess.output_vocab_without_from,
                                                       self.schema_tokens[db_id], db)
+            # query_norm = parse_sql(query_no_alias, db_id, self.column_names[db_id],
+            #                                           editsql_preprocess.output_vocab_without_from,
+            #                                           self.schema_tokens[db_id], db)
         except AssertionError as e:
             print('assertion error in parse_sql', e)
             query_norm = None

@@ -42,7 +42,7 @@ def no_value_tokenize(string):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("-C", "--path", default='./data/csgsql', help="Configuration (*.json).")
+    parser.add_argument("-C", "--path", default='./data/CSgSQL', help="Configuration (*.json).")
 
     args = parser.parse_args()
     path = args.path
@@ -60,7 +60,7 @@ def main():
             raw_data['query_toks_no_value'] = no_value_tokenize(query)
             raw_data['question_toks'] = list(jieba.cut(raw_data['question']))
 
-        with open(os.path.join(path, k + '_new.json'), 'w', encoding='utf-8') as f:
+        with open(os.path.join(path, k + '.json'), 'w', encoding='utf-8') as f:
             f.write(json.dumps(data, indent=4, separators=(',', ': '), ensure_ascii=False))
 
 

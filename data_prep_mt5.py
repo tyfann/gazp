@@ -7,7 +7,7 @@
 import os
 import pandas as pd
 
-os.chdir('..')
+# os.chdir('..')
 
 
 def prepare_translation_datasets(data_path):
@@ -44,6 +44,6 @@ def prepare_translation_datasets(data_path):
     return train_df, eval_df
 
 if __name__ == '__main__':
-    train_df, eval_df = prepare_translation_datasets("dataset_post/csgsql_sl")
-    train_df.to_csv("dataset_post/csgsql_sl/train.tsv", sep="\t")
-    eval_df.to_csv("dataset_post/csgsql_sl/eval.tsv", sep="\t")
+    train_df, eval_df = prepare_translation_datasets("mt5-data")
+    train_df.to_csv("mt5-data/train.csv", sep="\t")
+    eval_df.to_csv("mt5-data/eval.csv", sep="\t")

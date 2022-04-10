@@ -3,6 +3,7 @@ exp/
 cache/
 jobs/
 database/
+.idea
 *.py[cod]
 *.jsonl
 *.out
@@ -12,3 +13,4 @@ sparc/
 *.zip
 old_exp/
 *.pt
+*.csv

@@ -14,7 +14,8 @@ from vocab import Vocab
 from collections import defaultdict, Counter
 from transformers import DistilBertTokenizer
 from eval_scripts import evaluation
-from preprocess_nl2sql import BERT_MODEL, bad_query_replace, bad_question_replace, ValueAlignmentException, QueryBuildError, SQL_PRIMITIVES
+from preprocess_nl2sql import BERT_MODEL, bad_query_replace, bad_question_replace, ValueAlignmentException, \
+    QueryBuildError, SQL_PRIMITIVES
 from nltk.stem.porter import PorterStemmer
 
 import editsql_preprocess
@@ -31,17 +32,17 @@ class SQLDataset:
         if yes_value[-1] == ';':
             yes_value.pop()
         yes_value = '___'.join(yes_value)
-        for f, t in bad_query_replace:
-            yes_value = yes_value.replace(f, t)
+        # for f, t in bad_query_replace:
+        #     yes_value = yes_value.replace(f, t)
         yes_value = yes_value.split('___')
 
         def find_match(no_value, i, yes_value):
-            before = None if i == 0 else no_value[i-1].lower()
-            after = None if i+1 == len(no_value) else no_value[i+1].lower()
+            before = None if i == 0 else no_value[i - 1].lower()
+            after = None if i + 1 == len(no_value) else no_value[i + 1].lower()
             candidates = []
 
             for j in range(len(yes_value)):
-                mybefore = None if j == 0 else yes_value[j-1].lower()
+                mybefore = None if j == 0 else yes_value[j - 1].lower()
                 if mybefore == before:
                     for k in range(j, len(yes_value)):
                         yk = yes_value[k].lower()
@@ -49,9 +50,9 @@ class SQLDataset:
                             break
                         # if '_' in yk and 'mk_man' not in yk and 'pu_man' not in yk and 'xp_' not in yk or yk in {'t1', 't2', 't3', 't4'}:
                         #     break
-                        myafter = None if k+1 == len(yes_value) else yes_value[k+1].lower()
+                        myafter = None if k + 1 == len(yes_value) else yes_value[k + 1].lower()
                         if myafter == after:
-                            candidates.append((j, k+1))
+                            candidates.append((j, k + 1))
                             break
             if len(candidates) == 0:
                 raise ValueAlignmentException('Cannot align values: {}'.format(yes_value))
@@ -66,12 +67,12 @@ class SQLDataset:
         num_slots = 0
         for i, t in enumerate(no_value):
             t = t.lower()
-            if 'value' in t and t not in {'attribute_value', 'market_value', 'value_points', 'market_value_in_billion', 'market_value_billion', 'product_characteristic_value', 'total_value_purchased'}:
+            if 'value' == t:
                 start, end = find_match(no_value, i, yes_value)
                 values.append(yes_value[start:end])
                 num_slots += 1
         if num_slots != len(values):
-            raise Exception('Found {} values for {} slots'.format(len(values),  num_slots))
+            raise Exception('Found {} values for {} slots'.format(len(values), num_slots))
         return values
 
     @classmethod
@@ -82,12 +83,15 @@ class SQLDataset:
             with utils.timeout(seconds=5, error_message='Timeout: {}'.format(p_str)):
                 cursor.execute(p_str)
                 p_res = cursor.fetchall()
+
             def res_map(res, val_units):
                 rmap = {}
                 for idx, val_unit in enumerate(val_units):
-                    key = tuple(val_unit[1]) if not val_unit[2] else (val_unit[0], tuple(val_unit[1]), tuple(val_unit[2]))
+                    key = tuple(val_unit[1]) if not val_unit[2] else (
+                    val_unit[0], tuple(val_unit[1]), tuple(val_unit[2]))
                     rmap[key] = [r[idx] for r in res]
                 return rmap
+
             if remap:
                 p_val_units = [unit[1] for unit in p_sql['select'][1]]
                 return res_map(p_res, p_val_units)
@@ -115,7 +119,7 @@ class SQLDataset:
         for query_tok in query_toks:
             if query_tok != '.' and '.' in query_tok:
                 # invalid sql; didn't use table alias in join
-                final_sql.extend(query_tok.replace('.',' . ').split())
+                final_sql.extend(query_tok.replace('.', ' . ').split())
                 invalid = True
             else:
                 final_sql.append(query_tok)
@@ -142,12 +146,15 @@ class SQLDataset:
         columns = []
         for table_id, (to, t) in enumerate(zip(db['table_names_original'] + ['NULL'], db['table_names'] + ['NULL'])):
             # insert a NULL table at the end
-            columns += [{'oname': '*', 'name': '*', 'type': 'all', 'key': '{}.*'.format(to).replace('NULL.', '').lower(), 'table_name': t.lower()}]
+            columns += [
+                {'oname': '*', 'name': '*', 'type': 'all', 'key': '{}.*'.format(to).replace('NULL.', '').lower(),
+                 'table_name': t.lower()}]
             keys = set(db['primary_keys'])
             for a, b in db['foreign_keys']:
                 keys.add(a)
                 keys.add(b)
-            for i, ((tid, co), (_, c), ct) in enumerate(zip(db['column_names_original'], db['column_names'], db['column_types'])):
+            for i, ((tid, co), (_, c), ct) in enumerate(
+                    zip(db['column_names_original'], db['column_names'], db['column_types'])):
                 ct = ct if i not in keys else 'key'
                 if tid == table_id:
                     columns.append({
@@ -162,7 +169,8 @@ class SQLDataset:
         for t in query_norm_toks:
             if t in key2col:
                 col = key2col[t]
-                question_context.extend(bert.tokenize('[ {} {} : {} ]'.format(col['type'], col['table_name'], col['name'])))
+                question_context.extend(
+                    bert.tokenize('[ {} {} : {} ]'.format(col['type'], col['table_name'], col['name'])))
             else:
                 question_context.extend(bert.tokenize(t))
         question_context.append(bert.sep_token)
@@ -214,6 +222,7 @@ class SQLDataset:
         invalid = False
         try:
             # normalize query
+            # 删除掉alias，例如select t1.name from city as t1就转换成select city.name from city
             query_norm = conv.convert_tokens(ex['query_toks'], ex['query_toks_no_value'], db_id)
         except Exception as e:
             print('preprocessing error')
@@ -252,7 +261,8 @@ class SQLDataset:
 
         # encode tables
         try:
-            question_context, columns = cls.build_contexts(query_norm_toks, g_values, conv.database_schemas[db_id], bert)
+            question_context, columns = cls.build_contexts(query_norm_toks, g_values, conv.database_schemas[db_id],
+                                                           bert)
         except Exception as e:
             print(e)
             return None
@@ -261,7 +271,7 @@ class SQLDataset:
         new = dict(
             id=ex['id'],
             columns=columns,
-            db_id=db_id, 
+            db_id=db_id,
             question=ex['question'],
             g_question_toks=question_toks,
             g_sql=g_sql,
@@ -280,7 +290,7 @@ class SQLDataset:
     @classmethod
     def recover_slots(cls, pointer, candidates, eos):
         if eos in pointer:
-            pointer = pointer[:pointer.index(eos)+1]
+            pointer = pointer[:pointer.index(eos) + 1]
         toks = []
         for i, p in enumerate(pointer):
             c = candidates[p]
@@ -320,7 +330,8 @@ class SQLDataset:
         conv = converter.Converter(os.path.join(root, 'tables.json'))
 
         splits = {}
-        for k in ['train', 'dev']:
+        # for k in ['train', 'dev']:
+        for k in ['train']:
             with open(os.path.join(root, '{}.json'.format(k)), 'rb') as f:
                 splits[k] = []
                 for ex in json.load(f):
@@ -328,7 +339,7 @@ class SQLDataset:
                     splits[k].append(ex)
                     if debug and len(splits[k]) > 100:
                         break
-    
+
         tokenizer = DistilBertTokenizer.from_pretrained(BERT_MODEL, cache_dir=dcache)
 
         utt_voc = Vocab(['PAD', 'EOS', 'GO'])
@@ -338,21 +349,21 @@ class SQLDataset:
             proc = []
             for i, ex in enumerate(tqdm.tqdm(data, desc='preprocess {}'.format(s))):
                 ex['id'] = '{}/{}'.format(ex['db_id'], i)
-                new = cls.make_example(ex, tokenizer, utt_voc, conv, train=s=='train')
+                new = cls.make_example(ex, tokenizer, utt_voc, conv, train=s == 'train')
                 if new is not None and (s != 'train' or not new['invalid']):
                     proc.append(new)
             splits[s] = proc
-    
+
         # make candidate list using vocab
         for s, data in splits.items():
             for ex in data:
                 ex['cands_question'] = cls.make_cands(ex, utt_voc)
             splits[s] = data
-    
+
         # make pointers for training data
         for ex in splits['train']:
             ex['pointer_question'] = cls.make_question_pointer(ex['sup_question'], ex['cands_question'], utt_voc)
-    
+
         # look up pretrained word embeddings
         emb = E.ConcatEmbedding([E.GloveEmbedding(), E.KazumaCharEmbedding()], default='zero')
         utt_emb = torch.tensor([emb.emb(w) for w in utt_voc._index2word])
@@ -360,11 +371,104 @@ class SQLDataset:
         return splits, ext
 
 
+def spider_test():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--debug', action='store_true')
+    parser.add_argument('--data', default='csgsql')
+    args = parser.parse_args()
+    no_value = [
+        "select",
+        "distinct",
+        "t1",
+        ".",
+        "creation",
+        "from",
+        "department",
+        "as",
+        "t1",
+        "join",
+        "management",
+        "as",
+        "t2",
+        "on",
+        "t1",
+        ".",
+        "department_id",
+        "=",
+        "t2",
+        ".",
+        "department_id",
+        "join",
+        "head",
+        "as",
+        "t3",
+        "on",
+        "t2",
+        ".",
+        "head_id",
+        "=",
+        "t3",
+        ".",
+        "head_id",
+        "where",
+        "t3",
+        ".",
+        "born_state",
+        "=",
+        "value"
+    ]
+    yes_value = [
+        "SELECT",
+        "DISTINCT",
+        "T1.creation",
+        "FROM",
+        "department",
+        "AS",
+        "T1",
+        "JOIN",
+        "management",
+        "AS",
+        "T2",
+        "ON",
+        "T1.department_id",
+        "=",
+        "T2.department_id",
+        "JOIN",
+        "head",
+        "AS",
+        "T3",
+        "ON",
+        "T2.head_id",
+        "=",
+        "T3.head_id",
+        "WHERE",
+        "T3.born_state",
+        "=",
+        "'Alabama",
+        "'"
+    ]
+    value = SQLDataset.align_values(no_value, yes_value)
+    print(value)
+
+
+def csgsql_test():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--debug', action='store_true')
+    parser.add_argument('--data', default='csgsql')
+    args = parser.parse_args()
+    no_value = ['select', 'sum', '(', 't1', '.', 'tmr_gen_value', ')', 'from', 'plant_year_quantity', 'as', 't1', 'join', 'plant_basic', 'as', 't2', 'on', 't1', '.', 'id', '=', 't2', '.', 'id', 'where', 't1', '.', 'year', 'like', 'value', 'and', 't2', '.', 'region', 'like', 'value', 'and', 't2', '.', 'plant_type', 'like', 'value']
+    yes_value = ['select', 'sum(t1.TMR_GEN_VALUE)', 'from', 'PLANT_YEAR_QUANTITY', 'as', 't1', 'join', 'PLANT_BASIC', 'as', 't2', 'on', 't1.ID', '=', 't2.ID', 'where', 't1.YEAR', 'like', "'%2020%'", 'and', 't2.REGION', 'like', "'江西'", 'and', 't2.PLANT_TYPE', 'like', "'%火力%'"]
+    value = SQLDataset.align_values(no_value, yes_value)
+    print(value)
+
+
 if __name__ == '__main__':
+
     parser = argparse.ArgumentParser()
     parser.add_argument('--debug', action='store_true')
     parser.add_argument('--data', default='csgsql')
     args = parser.parse_args()
 
     proc = SQLDataset.from_file(os.path.join('data', args.data), 'cache', debug=args.debug)
-    torch.save(proc, 'cache/data_sql2nl_' + args.data + '.debug.pt' if args.debug else 'cache/data_sql2nl_' + args.data + '.pt')
+    torch.save(proc,
+               'cache/data_sql2nl_' + args.data + '.debug.pt' if args.debug else 'cache/data_sql2nl_' + args.data + '.pt')

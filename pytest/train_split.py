@@ -18,7 +18,7 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
 
-    parser.add_argument("-C", "--configuration", default='./data/csgsql', help="Configuration (*.json).")
+    parser.add_argument("-C", "--configuration", default='./data/CSgSQL', help="Configuration (*.json).")
 
     args = parser.parse_args()
 

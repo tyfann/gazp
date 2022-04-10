@@ -6,14 +6,16 @@
 import logging
 import pandas as pd
 from simpletransformers.t5 import T5Model, T5Args
+# import os
+# os.environ["CUDA_VISIBLE_DEVICES"] = "1, 2"
 
 
 logging.basicConfig(level=logging.INFO)
 transformers_logger = logging.getLogger("transformers")
 transformers_logger.setLevel(logging.WARNING)
 
-train_df = pd.read_csv("dataset_post/csgsql_sl/train.tsv", sep="\t").astype(str)
-eval_df = pd.read_csv("dataset_post/csgsql_sl/eval.tsv", sep="\t").astype(str)
+train_df = pd.read_csv("mt5-data/train.tsv", sep="\t").astype(str)
+eval_df = pd.read_csv("mt5-data/eval.tsv", sep="\t").astype(str)
 
 train_df["prefix"] = ""
 eval_df["prefix"] = ""
@@ -27,6 +29,7 @@ model_args.evaluate_during_training = True
 model_args.evaluate_during_training_steps = 3000
 model_args.use_multiprocessing = False
 model_args.fp16 = False
+model_args.n_gpu = 2
 model_args.save_steps = -1
 model_args.save_eval_checkpoints = False
 model_args.no_cache = True
@@ -35,7 +38,7 @@ model_args.overwrite_output_dir = True
 model_args.preprocess_inputs = False
 model_args.num_return_sequences = 1
 
-model = T5Model("mt5", "google/mt5-small", args=model_args)
+model = T5Model("mt5", "cache/mt5-small", args=model_args)
 
 # Train the model
 model.train_model(train_df, eval_data=eval_df)

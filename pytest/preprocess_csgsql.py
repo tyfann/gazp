@@ -10,7 +10,6 @@ import argparse
 import sys
 sys.path.append('..')
 from copy import copy
-from semparse.sql.spider_utils import disambiguate_items, fix_number_value
 from tqdm import tqdm
 import re
 
@@ -74,49 +73,5 @@ def convert_single_query(query):
     return query_new
 
 
-# def normalize_original_sql(sql):
-#     sql = [i.lower() for i in sql]
-#     sql = ' '.join(sql).strip(';').replace("``", "'").replace("\"", "'").replace("''", "'")
-#     sql = sql.replace(')from', ') from')
-#     sql = sql.replace('(', ' ( ')
-#     sql = sql.replace(')', ' ) ')
-#     sql = re.sub('\s+', ' ', sql)
-#
-#     sql = re.sub(r"(')(\S+)", r"\1 \2", sql)
-#     sql = re.sub(r"(\S+)(')", r"\1 \2", sql).split(' ')
-#
-#     sql = ' '.join(sql)
-#     sql = sql.strip(' ;').replace('> =', '>=').replace('! =', '!=')
-#     return sql.split(' ')
-
-
-
-# def normalize():
-#     dataset_path = './data/csgsql/train.json'
-#     table_path = './data/csgsql/tables.json'
-#     with open(dataset_path) as f:
-#         split_data = json.load(f)
-#
-#     for i, ex in enumerate(tqdm(split_data)):
-#         db_id = ex['db_id']
-#
-#         ex['query_toks_no_value'] = normalize_original_sql(ex['query_toks_no_value'])
-#         turn_sql = ' '.join(ex['query_toks_no_value'])
-#         turn_sql = turn_sql.replace('select count ( * ) from follows group by value',
-#                                     'select count ( * ) from follows group by f1')
-#         ex['query_toks_no_value'] = turn_sql.split(' ')
-#
-#         ex = fix_number_value(ex)
-#         try:
-#             ex['query_toks_no_value'] = disambiguate_items(db_id, ex['query_toks_no_value'],
-#                                                            tables_file=table_path, allow_aliases=False)
-#         except:
-#             print(ex['query_toks'])
-#             continue
-#
-#         print(ex)
-
-
 if __name__ == '__main__':
     convert_query()
-    # normalize()
